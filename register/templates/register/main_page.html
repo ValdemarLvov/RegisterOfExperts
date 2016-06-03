@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+
+  	<script src="{% static "jquery-2.2.4.min.js" %}"></script>
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/bootstrap-theme.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/core.css" %}" rel="stylesheet">
+
+	<script src="{% static "js/bootstrap.min.js" %}"></script>
+	<script src="{% static "js/bootstrap.min.js" %}"></script>
+<style>
+    .inner {
+    display: inline-block;
+  }
+    .btn_rmargin { 
+    margin-right: 10%;
+   }
+    .btn_l2margin { 
+    margin-left: 22%;
+   }
+    .btn_lmargin { 
+    margin-left: 2%;
+   }
+   .btn_bmargin { 
+    margin-bottom: 3%;
+   }
+  </style>
+</head>
+
+<body>
+<div class="jumbotron">
+  <center><h2>Реєстр атестованих судових експертів</h2></center> 
+</div>
+
+{% if msgs %}
+<div class="alert alert-success">
+  <strong>Здійснено пошук за параметрами</strong><br>
+  {% for msg in msgs %} 
+  {{ msg }} <br>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+  <div class="row">
+        <div id="filter-panel" class="collapse filter-panel">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                  <div class="col-md-12">
+                    <form action= {{ request.get_full_path }} method="POST">{% csrf_token %}
+                    <div class="form-group inner">
+                      <div class="form-group">
+                        <label class="filter-col" style="margin-right:0;" for="surname">Прізвище:</label>
+                        <input type="text" class="form-control" name="surname" id="surname">
+                      </div>
+
+                      <div class="form-group">
+                        <label class="filter-col" style="margin-right:0;" for="name">Ім'я:</label>
+                        <input type="text" class="form-control" name="name" id="name">
+                      </div>
+
+                      <div class="form-group">
+                        <label class="filter-col" style="margin-right:0;" for="name">По батькові:</label>
+                        <input type="text" class="form-control" name="patronymic" id="patronymic">
+                      </div>
+                    </div>
+                    <div class="form-group inner pull-right">
+                      <div class="form-group">
+                            <label class="filter-col" style="margin-right:0;" for="pref-perpage">Регіон:</label>
+                            <select id="pref-perpage" class="form-control" name="region">
+                                {% for region in regions %}
+                                <option value="{{ region.id }}">{{ region }}</option>
+                                {% endfor %}
+                                <option selected="selected" value="all">Всі</option>
+                            </select>                                
+                        </div>
+                        <div class="form-group">
+                            <label class="filter-col" style="margin-right:0;" for="pref-perpage">Орган:</label>
+                            <select id="pref-perpage" class="form-control" name="organ">
+                                {% for organ in organs %}
+                                <option value="{{ organ.id }}">{{ organ }}</option>
+                                {% endfor %}
+                                <option selected="selected" value="all">Всі</option>
+                            </select>                                
+                        </div>
+                       <div class="form-group">
+                            <label class="filter-col" style="margin-right:0;" for="pref-perpage">Тип експерта:</label>
+                            <select id="pref-perpage" class="form-control" name="type">
+                                <option selected="selected" value="all">Всі експерти</option>
+                                <option value="False">Не є фахівцями держ. спец. установ</option>
+                                <option value="True">Фахівці держ. спец. установ</option>
+                            </select>                                
+                        </div>
+                      </div>
+                  <button type="submit" class="btn btn-default btn_l2margin">Шукати <span class="glyphicon glyphicon-search"></span></button>
+                    </form>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="inner btn_lmargin btn_bmargin">    
+        <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#filter-panel">
+            <span class="glyphicon glyphicon-cog"></span> Пошук
+        </button>
+        </div>
+        {% if msgs %}
+        <div class="inner btn_lmargin btn_bmargin">
+        <a type="button" class="btn btn-primary" name="back_button"
+         href="{% url 'main_page' %}">
+            <span class="glyphicon glyphicon-record"></span> Показати всі
+        </a>
+        </div>
+        {% endif %}
+  </div>
+</div>
+
+{% if experts %}
+<div class="container">           
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>Прізвище</th>
+        <th>Ім'я</th>
+        <th>По батькові</th>
+        <th>Тип експерта</th>
+        <th>Державний орган</th>
+      </tr>
+    </thead>
+    <tbody>
+     {% for expert in experts %}
+      <tr class='clickable-row' data-href="{% url 'validation_page' expert.id %}">
+        <td>{{ expert.surname }}</td>
+        <td>{{ expert.name }}</td>
+        <td>{{ expert.patronymic }}</td>
+        {% if expert.expert_type %}
+        	<td>Є фахівцем державної установи</td>
+        {% else %}
+        	<td>Не є фахівцем державної установи</td>
+        {% endif %}
+        <td>{{ expert.organ }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+   <p>No objects are available.</p>
+{% endif %}
+<script>
+    jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+   });
+   </script>
+</body>
+
+</html>
